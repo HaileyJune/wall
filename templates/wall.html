@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+</head>
+<body>
+    <a href="/logout">Logout</a>
+
+    <div>
+        {% if messages %}
+            {%for message in messages%}
+                <p>{{message['from_id']}} said:</p>
+                <p>{{message['message']}}</p>
+            {% endfor %}  
+        {% endif %}
+        <!-- <h2>{{count}} Message(s) for You</h2> -->
+        <p>{{messages}}</p>
+    </div>
+
+    <div>
+    {% if users %}
+        {%for user in users%}
+            <p>Message {{user['first_name']}}</p>
+            <form action="/send" method="POST">
+                <input type="text" name="text">
+                <input type="hidden" valie="{{user['id']}}" name="to_id">
+                <input type="submit" value="Send">
+            </form>
+        
+            {% endfor %}  
+    {% endif %}
+    <!-- {{user}} -->
+    </div>
+
+</body>
+</html>

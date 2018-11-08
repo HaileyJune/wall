@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Register</title>
+</head>
+<body>
+    <form action="/register" method="POST">
+        <h1>Register</h1>
+        <p>First Name:</p>
+        <!-- thing -->
+        <input type="text" name="fname">
+        <p>Last Name:</p>
+        <!-- thing -->
+        <input type="text" name="lname">
+        <p>Email:</p>
+        <!-- thing -->
+        <input type="email" name="email">
+        <p>Password:</p>
+        <!-- thing -->
+        <input type="password" name="password">
+        <p>Confirm Password:</p>
+        <!-- thing -->
+        <input type="password" name="confirm">
+        <input type="submit" value="Sell Your Soul">
+    </form>
+    {% with messages = get_flashed_messages() %}     <!-- declare a variable called messages -->
+    {% if messages %}                            <!-- check if there are any messages -->
+        {% for message in messages %}            <!-- loop through the messages -->
+            <p>{{message}}</p>                   <!-- display each message in a paragraph tag -->
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form action="/login" method="POST">
+        <h1>Log In</h1>
+        <p>Email:</p>
+        <input type="email" name="email">
+        <p>Password:</p>
+        <input type="password" name="password">
+        <input type="submit" name="Submit">
+    </form>
+</body>
+</html>
