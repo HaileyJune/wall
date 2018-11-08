@@ -1,23 +1,28 @@
 from flask import Flask, render_template, request, redirect, flash, session
 from mysqlconnection import connectToMySQL
 import re
-from flask_bcrypt import Bcrypt        
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.secret_key = ";)"
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
-EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$') 
-@app.route('/register', methods = ["POST"])
+
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+
+
+@app.route('/register', methods=["POST"])
 def submit():
     is_valid = True
 
     if len(request.form['fname']) < 1:
-    	is_valid = False
-    	flash("Please enter a first name")
+        is_valid = False
+        flash("Please enter a first name")
 
     if len(request.form['lname']) < 1:
         is_valid = False
@@ -54,18 +59,20 @@ def submit():
     else:
         return redirect("/")
 
+
 @app.route("/login", methods=["POST"])
 def login():
     mysql = connectToMySQL("wall")
     query = "SELECT * FROM users WHERE email = %(e)s;"
-    data = {'e' : request.form['email']}
+    data = {'e': request.form['email']}
     result = mysql.query_db(query, data)
     if result:
         if bcrypt.check_password_hash(result[0]['password'], request.form['password']):
             session['userid'] = result[0]['id']
-            return redirect ('/success')
+            return redirect('/success')
     flash("You failed.")
     return redirect("/")
+
 
 @app.route("/success")
 def success():
@@ -76,14 +83,14 @@ def success():
 
     mysql = connectToMySQL("wall")
     query = "SELECT * FROM users WHERE id != %(i)s;"
-    data = {'i' : session['userid']}
+    data = {'i': session['userid']}
     users = mysql.query_db(query, data)
     print(users)
 
     mysql = connectToMySQL("wall")
-    query = "SELECT wall.messages.* FROM messages JOIN users ON messages.from_id = users.id;"
+    query = "SELECT wall.messages.*, users.first_name FROM messages JOIN users ON messages.from_id = users.id WHERE messages.to_id = %(i)s;"
     #  WHERE messages.to_id = %(i)s;"
-    data = {'i' : session['userid']}
+    data = {'i': session['userid']}
     messages_bd = mysql.query_db(query, data)
     print(messages_bd)
 
@@ -94,26 +101,27 @@ def success():
     # print("*"*50)
     # print(count)
 
+    return render_template("wall.html", users=users, messages=messages_bd)
 
-    return render_template("wall.html", users = users, messages = messages_bd)
 
-
-@app.route("/send", methods = ["POST"])
+@app.route("/send", methods=["POST"])
 def send():
     mysql = connectToMySQL("wall")
-    query = "INSERT INTO messages (message, to_id, from_id), VALUES ( %(m)s, %(t)s, %(f)s );"
+    query = "INSERT INTO messages (message, to_id, from_id) VALUES ( %(m)s, %(t)s, %(f)s );"
     data = {
-        'm' : request.form['text'],
-        't' : request.form['to_id'],
-        'f' : session['userid']
+        'm': request.form['text'],
+        't': request.form['to_id'],
+        'f': session['userid']
     }
     send_message = mysql.query_db(query, data)
     return redirect('/success')
+
 
 @app.route("/logout")
 def leave():
     session.clear()
     return redirect("/")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
